@@ -27,13 +27,40 @@ directed red edges indicate that one student likes another student.
 
 ## Write queries
 1. Find the names of all students who are friends with someone named Gabriel.
+
+SELECT h2.name
+FROM Highschooler h1, Friend f, Highschooler h2
+WHERE h1.ID = f.ID1
+  AND h2.ID = f.ID2
+  AND h1.name = 'Gabriel';
+
 1. Find all students who do not appear in the Likes table (as a student who
   likes or is liked) and return their names and grades.
+
+SELECT h.name, h.grade
+FROM Highschooler h
+WHERE ID NOT IN (
+  SELECT ID1 FROM Likes
+  union
+  SELECT ID2 FROM Likes
+);
+
 1. (*) Find the name and grade of all students who are liked by more than one
   other student.
+
+SELECT h.name, h.grade
+FROM Highschooler h, Likes l
+WHERE h.ID = l.ID2;
+
 1. (*) For every student who likes someone 2 or more
   grades younger than themselves, return that student's name and grade, and the
   name and grade of the student they like.
+
+SELECT h1.name, h1.grade, h2.name, h2.grade
+FROM Highschooler h1, Likes l, Highschooler h2
+WHERE h1.ID = l.ID1
+  AND h1.grade > h2.grade;
+
 1. (**) Find names and grades of students who only have friends in the same
   grade. Return the result sorted by grade, then by name within each grade.
   (what about students with no friends?)
@@ -44,6 +71,14 @@ directed red edges indicate that one student likes another student.
   the number of different first names.
 1. (**) What is the average number of friends per student? (Your result should
   be just one number.)
+
+SELECT AVG(friendnum)
+FROM (
+  SELECT COUNT(ID2) AS friendnum
+  FROM Friend
+  GROUP BY ID1
+) AS FriendNum;
+
 1. (***) Find the number of students who are either friends with Cassandra or
   are friends of friends of Cassandra. Do not count Cassandra, even though
   technically she is a friend of a friend.
